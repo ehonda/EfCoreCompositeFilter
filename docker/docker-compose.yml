@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: movies-root-password
+      MARIADB_DATABASE: movies-db
+      MARIADB_USER: movies-user
+      MARIADB_PASSWORD: movies-password
+    ports:
+      - '127.0.0.1:3306:3306'
+    volumes:
+      - movies-db-data:/var/lib/mysql
+
+volumes:
+  movies-db-data:
