@@ -2,10 +2,14 @@
 
 namespace EfCoreCompositeFilter.DatabaseContexts;
 
-public class SqliteMovieDbContext : MovieDbContext
+public class MariaDbMovieDbContext : MovieDbContext
 {
+    private const string ConnectionString = "server=localhost;user=root;" +
+                                             "password=movies-root-password;database=movies-db";
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("DataSource=movies.db");
+        optionsBuilder.UseMySql(
+            ConnectionString,
+            ServerVersion.AutoDetect(ConnectionString));
     }
 }

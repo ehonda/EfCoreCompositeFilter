@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using EfCoreCompositeFilter;
+using EfCoreCompositeFilter.DatabaseContexts;
 using Microsoft.EntityFrameworkCore;
 
 SetupDatabase();

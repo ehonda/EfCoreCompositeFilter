@@ -1,6 +1,11 @@
-﻿namespace EfCoreCompositeFilter.DatabaseContexts;
+﻿using Microsoft.EntityFrameworkCore;
 
-public class SqliteMovieDbContext
+namespace EfCoreCompositeFilter.DatabaseContexts;
+
+public class SqliteMovieDbContext : MovieDbContext
 {
-    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlite("DataSource=movies.db");
+    }
 }
