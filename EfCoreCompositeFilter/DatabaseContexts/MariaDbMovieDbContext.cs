@@ -8,6 +8,8 @@ public class MariaDbMovieDbContext : MovieDbContext
                                              "password=movies-root-password;database=movies-db";
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        base.OnConfiguring(optionsBuilder);
+        
         optionsBuilder.UseMySql(
             ConnectionString,
             ServerVersion.AutoDetect(ConnectionString));

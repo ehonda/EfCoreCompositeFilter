@@ -1,43 +1,38 @@
 ﻿using System.Collections.Immutable;
 using EfCoreCompositeFilter;
 using EfCoreCompositeFilter.DatabaseContexts;
+using EfCoreCompositeFilter.DatabaseContexts.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-SetupDatabase();
-
-InsertData();
-
-var data = RetrieveData();
-PrintData(data);
-
-TeardownDatabase();
-
-void SetupDatabase()
+With.Database<SqliteMovieDbContext>(() =>
 {
-    using var context = new MovieDbContext();
-    context.Database.EnsureDeleted();
-    context.Database.EnsureCreated();
-}
+    var data = RetrieveData<SqliteMovieDbContext>();
+    PrintData(data);
+});
 
-void InsertData()
-{
-    using var context = new MovieDbContext();
-    context.Movies.Add(new("Action Movie", "E.Honda"));
-    context.Movies.Add(new("Documentary", "Vega"));
-    context.Movies.Add(new("Thriller", "Guile"));
-    context.SaveChanges();
-}
+// With.Database<MariaDbMovieDbContext>(() =>
+// {
+//     var data = RetrieveData<MariaDbMovieDbContext>();
+//     PrintData(data);
+// });
 
-ImmutableArray<Movie> RetrieveData()
+ImmutableArray<Movie> RetrieveData<TDbContext>()
+    where TDbContext : MovieDbContext, new()
 {
-    using var context = new MovieDbContext();
+    using var context = new TDbContext();
+//     return context.Movies
+//         .FromSqlInterpolated(@$"
+// SELECT *
+// FROM Movies m
+// WHERE (m.Title, m.Director)
+// IN (VALUES ('Action Movie', 'E.Honda'), ('Thriller', 'Guile'))
+// ")
     return context.Movies
-        .FromSqlInterpolated(@$"
-SELECT *
-FROM Movies m
-WHERE (m.Title, m.Director)
-IN (VALUES ('Action Movie', 'E.Honda'), ('Thriller', 'Guile'))
-")
+        .CompositeFilter(
+            nameof(MovieDbContext.Movies),
+            nameof(Movie.Title),
+            nameof(Movie.Director),
+            ("'Thriller'", "'Guile'"))
         .ToImmutableArray();
 }
 
@@ -47,10 +42,4 @@ void PrintData(IEnumerable<Movie> movies)
     {
         Console.WriteLine($"{movie.Title} - {movie.Director}");
     }
-}
-
-void TeardownDatabase()
-{
-    using var context = new MovieDbContext();
-    context.Database.EnsureDeleted();
 }
